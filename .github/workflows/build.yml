@@ -81,5 +81,15 @@ jobs:
             libgdbm-dev \
             tk-dev
 
+      - name: Install Android build tools
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform
+          cd $HOME/.buildozer/android/platform
+          wget https://dl.google.com/android/repository/build-tools_r31.0.0-linux.zip
+          unzip build-tools_r31.0.0-linux.zip
+          rm build-tools_r31.0.0-linux.zip
+          mv android-10 build-tools
+          export PATH=$PATH:$HOME/.buildozer/android/platform/build-tools
+
       - name: Build APK
         run: buildozer -v android debug
