@@ -1,46 +1,81 @@
+name: Build APK
 
-name: CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7.6
+          python-version: 3.7
 
-      # used to cache dependencies with a timeout
-      - name: Get Date
-        id: get-date
+      - name: Install system dependencies
         run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            openjdk-8-jdk \
+            unzip
 
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v2
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+      - name: Install Buildozer
+        run: pip install --upgrade buildozer
 
-      - uses: actions/cache@v2
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+      - name: Install Buildozer dependencies
+        run: |
+          sudo apt-get install -y \
+            build-essential \
+            ccache \
+            git \
+            libffi-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxslt1-dev \
+            zlib1g-dev \
+            python3-pip \
+            python3-setuptools \
+            python3-venv \
+            python3-wheel \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            pkg-config \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libnotify-dev \
+            libtiff-dev \
+            libjpeg-dev \
+            libopenjp2-7-dev \
+            libwebp-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+            liblzma-dev \
+            libsqlite3-dev \
+            libfontconfig1-dev \
+            libxkbcommon-x11-dev \
+            zlib1g-dev \
+            libbz2-dev \
+            libffi-dev \
+            libssl-dev \
+            libreadline-dev \
+            libncursesw5-dev \
+            libncurses5-dev \
+            libsqlite3-dev \
+            libgdbm-dev \
+            tk-dev
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+      - name: Build APK
+        run: buildozer -v android debug
