@@ -112,4 +112,5 @@ class FileRenameApp(App):
             self.label.text = 'Directory not found'
 
 
-FileRenameApp().run()
+if __name__ == '__main__':
+    FileRenameApp().run()
